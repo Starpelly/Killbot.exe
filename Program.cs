@@ -34,15 +34,6 @@ namespace Killbot
         [DllImport("ntdll.dll")]
         public static extern uint NtRaiseHardError(uint ErrorStatus, uint NumberOfParameters, uint UnicodeStringParameterMask, IntPtr Parameters, uint ValidResponseOption, out uint Response);
 
-        /// <summary>
-        /// set the parameter of system
-        /// </summary>
-        /// <param name="uAction"></param>
-        /// <param name="uParam"></param>
-        /// <param name="lpvParam"></param>
-        /// <param name="fuWinIni"></param>
-        /// <example></example>
-        /// <returns></returns>
         [DllImport("user32.dll", EntryPoint = "SystemParametersInfo")]
         public static extern int SystemParametersInfo(UAction uAction, int uParam, StringBuilder lpvParam, int fuWinIni);
         static unsafe void Main(string[] args)
@@ -120,9 +111,7 @@ namespace Killbot
             }
             return result;
         }
-        /// <param name="optionsName">the name of registry</param>
-        /// <param name="optionsData">set the data of registry</param>
-        /// <param name="msg"></param>
+
         public static bool SetOptions(string optionsName, string optionsData, ref string msg)
         {
             bool returnBool = true;
